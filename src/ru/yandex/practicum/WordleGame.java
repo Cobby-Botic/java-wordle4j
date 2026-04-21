@@ -1,5 +1,9 @@
 package ru.yandex.practicum;
 
+import java.util.InputMismatchException;
+import java.util.Random;
+import java.util.Scanner;
+
 /*
 в этом классе хранится словарь и состояние игры
     текущий шаг
@@ -18,6 +22,32 @@ public class WordleGame {
 
     private int steps;
 
+    int tryes = 0;
+
     private WordleDictionary dictionary;
+
+    Scanner scanner = new Scanner(System.in);
+
+    Random random = new Random();
+
+    public WordleGame(WordleDictionary dictionary, int steps, String answer) {
+        this.dictionary = dictionary;
+        this.steps = steps;
+        this.answer = answer;
+    }
+
+    public void startGame() {
+        System.out.println("Слово загадано!");
+        while (tryes < steps) {
+            try {
+                System.out.println("Попробуйте угадать");
+                String answer = scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.out.println("Введено не число.");
+            }
+        }
+    }
+
+
 
 }
