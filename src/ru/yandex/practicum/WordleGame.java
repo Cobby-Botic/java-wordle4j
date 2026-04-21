@@ -38,16 +38,30 @@ public class WordleGame {
 
     public void startGame() {
         System.out.println("Слово загадано!");
+        System.out.println("Для глупых загаданное слово: " + answer);
         while (tryes < steps) {
             try {
                 System.out.println("Попробуйте угадать");
                 String answer = scanner.nextLine();
+                System.out.println(checkAnswer(answer));
+                tryes++;
             } catch (InputMismatchException e) {
                 System.out.println("Введено не число.");
             }
         }
     }
-
-
-
+    
+    public String checkAnswer(String ans) {
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < ans.length(); i++) {
+            if (answer.indexOf(ans.charAt(i)) >= 0 && answer.indexOf(ans.charAt(i)) == ans.indexOf(ans.charAt(i))) {
+                str.append("+");
+            } else if (answer.indexOf(ans.charAt(i)) >= 0) {
+                str.append("^");
+            } else {
+                str.append("-");
+            }
+        }
+        return str.toString();
+    }
 }

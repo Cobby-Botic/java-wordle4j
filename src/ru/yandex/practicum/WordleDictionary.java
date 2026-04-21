@@ -10,7 +10,7 @@ import java.util.Random;
  */
 public class WordleDictionary {
 
-    private List<String> words;
+    private final List<String> words;
 
     public WordleDictionary(List<String> words) {
         this.words = words;

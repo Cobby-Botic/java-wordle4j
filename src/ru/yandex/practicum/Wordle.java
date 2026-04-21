@@ -19,7 +19,7 @@ public class Wordle {
         WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
         WordleDictionary words = wordleDictionaryLoader.LoadWordDict();
         WordleGame game = new WordleGame(words, 6, words.generateAnswer());
-        
+        game.startGame();
     }
 
 }
