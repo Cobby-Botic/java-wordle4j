@@ -12,7 +12,6 @@ public class WordleGame {
 
     private final Map<String, String> answers = new LinkedHashMap<>();
     private final WordleDictionary dictionary;
-
     private final Random random = new Random();
 
     public WordleGame(WordleDictionary dictionary, int steps, String answer, PrintWriter log) {
@@ -22,56 +21,40 @@ public class WordleGame {
         this.log = log;
     }
 
-    public void startGame() {
-        System.out.println("Слово загадано!");
-        log.println("Загадано слово: " + answer);
+    public String processGuess(String guess) throws InvalidGuessException {
+        if (guess.isEmpty()) {
+            String hint = gameHint();
+            log.println("Пользователь запросил подсказку");
 
-        while (!isGameEnd()) {
-            System.out.println("\nПопробуйте угадать (пустая строка — подсказка):");
-            String guess = scanner.nextLine();
-
-            if (guess.isEmpty()) {
-                // спецкоманда: подсказка
-                String hint = gameHint();
-                log.println("Пользователь воспользовался подсказкой");
-                if ("Нет подходящих слов".equals(hint)) {
-                    System.out.println(hint);
-                } else {
-                    System.out.println("Подсказка: " + hint);
-                    String result = checkAnswer(hint);
-                    System.out.println(result);
-                    tries++;
-                }
-                continue;
+            if ("Нет подходящих слов".equals(hint)) {
+                return hint;
             }
 
-            try {
-                validateGuess(guess);
-                String result = checkAnswer(guess);
-                System.out.println(result);
-                tries++;
-                log.println("Пользователь ввел: " + guess);
-            } catch (InvalidGuessException e) {
-                System.out.println("Ошибка ввода: " + e.getMessage());
-            }
+            String result = checkAnswer(hint);
+            tries++;
+            return "Подсказка: " + hint + "\n" + result;
         }
+
+        validateGuess(guess);
+        String result = checkAnswer(guess);
+        tries++;
+        log.println("Попытка: " + guess + " → " + result);
+        return result;
     }
 
     private void validateGuess(String guess) throws InvalidGuessException {
         if (guess.length() != answer.length()) {
             throw new InvalidGuessException(
-                    "Слово должно быть длиной " + answer.length() + " букв(ы)."
+                    "Слово должно быть длиной " + answer.length()
             );
         }
 
         if (!guess.matches("[А-Яа-яЁё]+")) {
-            throw new InvalidGuessException(
-                    "Можно вводить только русские буквы без пробелов, цифр и латиницы."
-            );
+            throw new InvalidGuessException("Только русские буквы");
         }
 
         if (!dictionary.getWords().contains(guess)) {
-            throw new InvalidGuessException("Такого слова нет в словаре.");
+            throw new InvalidGuessException("Слова нет в словаре");
         }
     }
 
@@ -86,7 +69,6 @@ public class WordleGame {
         for (int i = 0; i < guess.length(); i++) {
             char g = guess.charAt(i);
             char t = target.charAt(i);
-
             if (t == g) {
                 str.append("+");
             } else if (target.indexOf(g) >= 0) {
@@ -104,13 +86,12 @@ public class WordleGame {
         }
 
         List<String> candidates = new ArrayList<>();
+
         for (String word : dictionary.getWords()) {
-
             boolean isValid = true;
-
             for (Map.Entry<String, String> entry : answers.entrySet()) {
-                String guess = entry.getKey();      // что вводил пользователь
-                String expected = entry.getValue(); // какой результат был
+                String guess = entry.getKey();
+                String expected = entry.getValue();
 
                 String actual = check(guess, word);
 
@@ -128,30 +109,22 @@ public class WordleGame {
         if (candidates.isEmpty()) {
             return "Нет подходящих слов";
         }
-
         return candidates.get(random.nextInt(candidates.size()));
     }
 
-    public boolean checkWord(String word) {
-        return dictionary.getWords().contains(word);
-    }
-
     public boolean isGameEnd() {
-        String winPattern = "+++++";
-
         if (tries >= steps) {
-            System.out.println("\nИгра окончена. Загаданное слово: " + answer);
-            log.println("Попытки закончились, слово не отгадано");
+            log.println("Попытки закончились");
             return true;
         }
+        return answers.containsValue("+++++");
+    }
 
-        for (String result : answers.values()) {
-            if (winPattern.equals(result)) {
-                System.out.println("\nВы угадали слово! Это было: " + answer);
-                log.println("Пользователь отгадал слово");
-                return true;
-            }
-        }
-        return false;
+    public boolean isWin() {
+        return answers.containsValue("+++++");
+    }
+
+    public String getAnswer() {
+        return answer;
     }
 }

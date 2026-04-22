@@ -1,29 +1,52 @@
 package ru.yandex.practicum;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Wordle {
 
-
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        try (PrintWriter log = new PrintWriter(new FileWriter("Log.txt"), true)) {
-            WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader(log);
-            WordleDictionary words = wordleDictionaryLoader.LoadWordDict();
-            WordleGame game = new WordleGame(words, 6, words.generateAnswer(), log);
-            System.out.println("Слово загадано");
+
+        try (PrintWriter log = new PrintWriter(new FileWriter("Log.txt"), true);
+             Scanner scanner = new Scanner(System.in)) {
+
+            WordleDictionaryLoader loader = new WordleDictionaryLoader(log);
+            WordleDictionary dictionary = loader.LoadWordDict();
+
+            WordleGame game = new WordleGame(
+                    dictionary,
+                    6,
+                    dictionary.generateAnswer(),
+                    log
+            );
+
+            System.out.println("Слово загадано!");
+
             while (!game.isGameEnd()) {
-                game.startGame();
+                System.out.println("\nВведите слово (Enter — подсказка):");
+
+                String input = scanner.nextLine();
+
+                try {
+                    String response = game.processGuess(input);
+                    System.out.println(response);
+                } catch (InvalidGuessException e) {
+                    System.out.println("Ошибка: " + e.getMessage());
+                }
+            }
+
+            if (game.isWin()) {
+                System.out.println("Вы угадали слово!");
+            } else {
+                System.out.println("Вы проиграли. Слово было: " + game.getAnswer());
             }
 
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Ошибка создания лог-файла");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
 }
