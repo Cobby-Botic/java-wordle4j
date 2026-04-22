@@ -13,7 +13,7 @@ public class Wordle {
              Scanner scanner = new Scanner(System.in)) {
 
             WordleDictionaryLoader loader = new WordleDictionaryLoader(log);
-            WordleDictionary dictionary = loader.LoadWordDict();
+            WordleDictionary dictionary = loader.loadWordDict();
 
             WordleGame game = new WordleGame(
                     dictionary,
