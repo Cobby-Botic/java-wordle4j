@@ -1,5 +1,6 @@
 package ru.yandex.practicum;
 
+import java.io.PrintWriter;
 import java.util.*;
 
 public class WordleGame {
@@ -7,22 +8,23 @@ public class WordleGame {
     private final String answer;
     private final int steps;
     private int tries = 0;
+    private final PrintWriter log;
 
     private final Map<String, String> answers = new LinkedHashMap<>();
     private final WordleDictionary dictionary;
 
-    private final Scanner scanner = new Scanner(System.in);
     private final Random random = new Random();
 
-    public WordleGame(WordleDictionary dictionary, int steps, String answer) {
+    public WordleGame(WordleDictionary dictionary, int steps, String answer, PrintWriter log) {
         this.dictionary = dictionary;
         this.steps = steps;
         this.answer = answer;
+        this.log = log;
     }
 
     public void startGame() {
         System.out.println("Слово загадано!");
-        System.out.println("Для глупых загаданное слово: " + answer);
+        log.println("Загадано слово: " + answer);
 
         while (!isGameEnd()) {
             System.out.println("\nПопробуйте угадать (пустая строка — подсказка):");
@@ -31,6 +33,7 @@ public class WordleGame {
             if (guess.isEmpty()) {
                 // спецкоманда: подсказка
                 String hint = gameHint();
+                log.println("Пользователь воспользовался подсказкой");
                 if ("Нет подходящих слов".equals(hint)) {
                     System.out.println(hint);
                 } else {
@@ -47,6 +50,7 @@ public class WordleGame {
                 String result = checkAnswer(guess);
                 System.out.println(result);
                 tries++;
+                log.println("Пользователь ввел: " + guess);
             } catch (InvalidGuessException e) {
                 System.out.println("Ошибка ввода: " + e.getMessage());
             }
@@ -137,12 +141,14 @@ public class WordleGame {
 
         if (tries >= steps) {
             System.out.println("\nИгра окончена. Загаданное слово: " + answer);
+            log.println("Попытки закончились, слово не отгадано");
             return true;
         }
 
         for (String result : answers.values()) {
             if (winPattern.equals(result)) {
                 System.out.println("\nВы угадали слово! Это было: " + answer);
+                log.println("Пользователь отгадал слово");
                 return true;
             }
         }

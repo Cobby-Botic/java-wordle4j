@@ -1,19 +1,17 @@
 package ru.yandex.practicum;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-этот класс содержит в себе всю рутину по работе с файлами словарей и с кодировками
-    ему нужны методы по загрузке списка слов из файла по имени файла
-    на выходе должен быть класс WordleDictionary
- */
 public class WordleDictionaryLoader {
+
+    private PrintWriter log;
+
+    public WordleDictionaryLoader(PrintWriter log) {
+        this.log = log;
+    }
 
     public WordleDictionary LoadWordDict() {
         List<String> words = new ArrayList<>();
@@ -26,11 +24,12 @@ public class WordleDictionaryLoader {
                     words.add(result);
                 }
             }
+            log.println("Словарь загружен.");
 
         } catch (FileNotFoundException e) {
-            System.out.println("Файл не найден!");
+            log.println("Файл не найден!");
         } catch (IOException e) {
-            System.out.println("Произошла ошибка");
+            log.println("Произошла ошибка");
         }
         return new WordleDictionary(words);
     }

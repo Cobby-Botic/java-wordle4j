@@ -1,25 +1,29 @@
 package ru.yandex.practicum;
 
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Scanner;
 
-/*
-в главном классе нам нужно:
-    создать лог-файл (он должен передаваться во все классы)
-    создать загрузчик словарей WordleDictionaryLoader
-    загрузить словарь WordleDictionary с помощью класса WordleDictionaryLoader
-    затем создать игру WordleGame и передать ей словарь
-    вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
-    вывести состояние игры и конечный результат
- */
 public class Wordle {
 
-    public static void main(String[] args) {
 
-        File log = new File("Log.txt");
-        WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
-        WordleDictionary words = wordleDictionaryLoader.LoadWordDict();
-        WordleGame game = new WordleGame(words, 6, words.generateAnswer());
-        game.startGame();
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        try (PrintWriter log = new PrintWriter(new FileWriter("Log.txt"), true)) {
+            WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader(log);
+            WordleDictionary words = wordleDictionaryLoader.LoadWordDict();
+            WordleGame game = new WordleGame(words, 6, words.generateAnswer(), log);
+            System.out.println("Слово загадано");
+            while (!game.isGameEnd()) {
+                game.startGame();
+            }
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
