@@ -5,9 +5,3 @@ public class GameException extends Exception {
         super(message);
     }
 }
-
-class InvalidGuessException extends GameException {
-    public InvalidGuessException(String message) {
-        super(message);
-    }
-}
