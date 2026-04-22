@@ -13,7 +13,7 @@ public class WordleDictionaryLoader {
         this.log = log;
     }
 
-    public WordleDictionary LoadWordDict() {
+    public WordleDictionary loadWordDict() {
         List<String> words = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(
                 new FileReader("words_ru.txt", StandardCharsets.UTF_8))) {
