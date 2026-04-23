@@ -3,13 +3,14 @@ package ru.yandex.practicum;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Wordle {
 
     public static void main(String[] args) {
 
-        try (PrintWriter log = new PrintWriter(new FileWriter("Log.txt"), true);
+        try (PrintWriter log = new PrintWriter(new FileWriter("Log.txt", StandardCharsets.UTF_8), true);
              Scanner scanner = new Scanner(System.in)) {
 
             WordleDictionaryLoader loader = new WordleDictionaryLoader(log);
