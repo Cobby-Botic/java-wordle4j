@@ -70,7 +70,7 @@ public class WordleGame {
         return result;
     }
 
-    public String check (String guess, String target) {
+    public String check(String guess, String target) {
         char[] targetChar = target.toCharArray();
         boolean[] used = new boolean[wordLength];
         StringBuilder str = new StringBuilder("-".repeat(wordLength));
@@ -79,7 +79,7 @@ public class WordleGame {
             if (guess.charAt(i) == targetChar[i]) {
                 str.setCharAt(i, '+');
                 presentLetters.add(guess.charAt(i));
-                correctPositions.set(i, guess.charAt(i)); // ← ВОТ
+                correctPositions.set(i, guess.charAt(i));
                 used[i] = true;
             }
         }
