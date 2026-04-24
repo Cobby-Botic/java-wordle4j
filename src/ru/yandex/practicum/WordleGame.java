@@ -6,23 +6,28 @@ import java.util.*;
 public class WordleGame {
 
     private final String answer;
-    private final int steps;
-    private int tries = 0;
     private final PrintWriter log;
+    private int tries = 0;
+    private final int wordLength = 5;
+    private final int maxSteps = 6;
 
-    private final Map<String, String> answers = new LinkedHashMap<>();
+    private Set<Character> absentLetters = new HashSet<>(); // буквы которых нет
+    private Set<Character> presentLetters = new HashSet<>(wordLength); // буквы которые есть
+    private List<Character> correctPositions = new ArrayList<>(
+            Collections.nCopies(wordLength, null)); // правильные позиции
+    private final Set<String> usedHints = new HashSet<>(); // для хранения использованных подсказок
+
     private final WordleDictionary dictionary;
     private final Random random = new Random();
 
-    public WordleGame(WordleDictionary dictionary, int steps, String answer, PrintWriter log) {
-        this.dictionary = dictionary;
-        this.steps = steps;
+    public WordleGame(String answer, PrintWriter log, WordleDictionary dictionary) {
         this.answer = answer;
         this.log = log;
+        this.dictionary = dictionary;
     }
 
     public String processGuess(String guess) throws InvalidGuessException {
-        if (guess.isEmpty()) {
+        if (guess.isBlank()) {
             String hint = gameHint();
             log.println("Пользователь запросил подсказку");
 
@@ -34,9 +39,10 @@ public class WordleGame {
             tries++;
             return "Подсказка: " + hint + "\n" + result;
         }
-
-        validateGuess(guess);
-        String result = checkAnswer(guess);
+        String rightGuess = guess.trim().toLowerCase(Locale.ROOT).replace("ё", "е"); //подгоняю ввод
+        // под правила
+        validateGuess(rightGuess);
+        String result = checkAnswer(rightGuess);
         tries++;
         log.println("Попытка: " + guess + " → " + result);
         return result;
@@ -60,28 +66,53 @@ public class WordleGame {
 
     public String checkAnswer(String guess) {
         String result = check(guess, answer);
-        answers.put(guess, result);
+        usedHints.add(guess);
         return result;
     }
 
-    public String check(String guess, String target) {
-        StringBuilder str = new StringBuilder();
-        for (int i = 0; i < guess.length(); i++) {
-            char g = guess.charAt(i);
-            char t = target.charAt(i);
-            if (t == g) {
-                str.append("+");
-            } else if (target.indexOf(g) >= 0) {
-                str.append("^");
-            } else {
-                str.append("-");
+    public String check (String guess, String target) {
+        char[] targetChar = target.toCharArray();
+        boolean[] used = new boolean[wordLength];
+        StringBuilder str = new StringBuilder("-".repeat(wordLength));
+
+        for (int i = 0; i < wordLength; i++) {
+            if (guess.charAt(i) == targetChar[i]) {
+                str.setCharAt(i, '+');
+                presentLetters.add(guess.charAt(i));
+                correctPositions.set(i, guess.charAt(i)); // ← ВОТ
+                used[i] = true;
+            }
+        }
+
+        for (int i = 0; i < wordLength; i++) {
+            boolean found = false;
+            if (str.charAt(i) == '+') {
+                continue;
+            }
+
+            for (int j = 0; j < wordLength; j++) {
+                if (target.charAt(j) == guess.charAt(i) && !used[j]) {
+                    str.setCharAt(i, '^');
+                    presentLetters.add(guess.charAt(i));
+                    used[j] = true;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                char g = guess.charAt(i);
+
+                if (!presentLetters.contains(g)) {
+                    absentLetters.add(g);
+                }
             }
         }
         return str.toString();
     }
 
     public String gameHint() {
-        if (answers.isEmpty()) {
+
+        if (usedHints.isEmpty()) {
             return dictionary.generateAnswer();
         }
 
@@ -89,13 +120,31 @@ public class WordleGame {
 
         for (String word : dictionary.getWords()) {
             boolean isValid = true;
-            for (Map.Entry<String, String> entry : answers.entrySet()) {
-                String guess = entry.getKey();
-                String expected = entry.getValue();
 
-                String actual = check(guess, word);
+            if (usedHints.contains(word)) {
+                isValid = false;
+                continue;
+            }
 
-                if (!actual.equals(expected)) {
+            for (char c : absentLetters) {
+                if (word.indexOf(c) >= 0) {
+                    isValid = false;
+                    break;
+                }
+            }
+            if (!isValid) continue;
+
+            for (int i = 0; i < wordLength; i++) {
+                Character correct = correctPositions.get(i);
+                if (correct != null && word.charAt(i) != correct) {
+                    isValid = false;
+                    break;
+                }
+            }
+            if (!isValid) continue;
+
+            for (char c : presentLetters) {
+                if (word.indexOf(c) < 0) {
                     isValid = false;
                     break;
                 }
@@ -109,19 +158,24 @@ public class WordleGame {
         if (candidates.isEmpty()) {
             return "Нет подходящих слов";
         }
-        return candidates.get(random.nextInt(candidates.size()));
-    }
-
-    public boolean isGameEnd() {
-        if (tries >= steps) {
-            log.println("Попытки закончились");
-            return true;
-        }
-        return answers.containsValue("+++++");
+        String candidate = candidates.get(random.nextInt(candidates.size()));
+        usedHints.add(candidate);
+        return candidate;
     }
 
     public boolean isWin() {
-        return answers.containsValue("+++++");
+        if (usedHints.contains(answer)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isGameEnd() {
+        if (tries >= maxSteps) {
+            log.println("Попытки закончились");
+            return true;
+        } else return usedHints.contains(answer);
     }
 
     public String getAnswer() {
