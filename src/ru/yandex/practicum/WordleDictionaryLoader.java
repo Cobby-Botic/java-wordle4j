@@ -27,9 +27,12 @@ public class WordleDictionaryLoader {
             log.println("Словарь загружен.");
 
         } catch (FileNotFoundException e) {
-            log.println("Файл не найден!");
+            throw new DictionaryLoadException("Не удалось загрузить словарь!");
         } catch (IOException e) {
             log.println("Произошла ошибка");
+        }
+        if (words.isEmpty()) {
+            throw new DictionaryIsEmptyException("Словарь пуст продолжение игры невозможно");
         }
         return new WordleDictionary(words);
     }
