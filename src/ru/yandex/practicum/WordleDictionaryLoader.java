@@ -13,7 +13,7 @@ public class WordleDictionaryLoader {
         this.log = log;
     }
 
-    public WordleDictionary loadWordDict() {
+    public WordleDictionary loadWordDict() throws DictionaryIsEmptyException, FileNotFoundException {
         List<String> words = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(
                 new FileReader("words_ru.txt", StandardCharsets.UTF_8))) {
@@ -24,16 +24,13 @@ public class WordleDictionaryLoader {
                     words.add(result);
                 }
             }
-            log.println("Словарь загружен.");
-
-        } catch (FileNotFoundException e) {
-            throw new DictionaryLoadException("Не удалось загрузить словарь!");
         } catch (IOException e) {
-            log.println("Произошла ошибка");
+            throw new DictionaryLoadException("Не удалось загрузить словарь!");
         }
         if (words.isEmpty()) {
             throw new DictionaryIsEmptyException("Словарь пуст продолжение игры невозможно");
         }
+        log.println("Словарь загружен.");
         return new WordleDictionary(words);
     }
 }
