@@ -9,9 +9,10 @@ import java.util.Scanner;
 public class Wordle {
 
     public static void main(String[] args) {
-
-        try (PrintWriter log = new PrintWriter(new FileWriter("Log.txt", StandardCharsets.UTF_8), true);
-             Scanner scanner = new Scanner(System.in)) {
+        PrintWriter log = null;
+        try {
+            log = new PrintWriter(new FileWriter("Log.txt", StandardCharsets.UTF_8), true);
+            Scanner scanner = new Scanner(System.in);
 
             WordleDictionaryLoader loader = new WordleDictionaryLoader(log);
             WordleDictionary dictionary = loader.loadWordDict();
@@ -46,8 +47,19 @@ public class Wordle {
 
         } catch (FileNotFoundException e) {
             System.out.println("Ошибка создания лог-файла");
+            if (log != null) {
+                e.printStackTrace(log);
+            }
+        } catch (DictionaryLoadException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace(log);
+        } catch (DictionaryIsEmptyException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace(log);
+
         } catch (Exception e) {
             e.printStackTrace();
+            e.printStackTrace(log);;
         }
     }
 }
