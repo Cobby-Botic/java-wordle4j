@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class WordleDictionary {
 
+    private final Random random = new Random();
     private final List<String> words;
 
     public WordleDictionary(List<String> words) {
@@ -16,7 +17,6 @@ public class WordleDictionary {
     }
 
     public String generateAnswer() {
-        Random random = new Random();
         return words.get(random.nextInt(words.size()));
     }
 }
