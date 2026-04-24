@@ -17,12 +17,7 @@ public class Wordle {
             WordleDictionaryLoader loader = new WordleDictionaryLoader(log);
             WordleDictionary dictionary = loader.loadWordDict();
 
-            WordleGame game = new WordleGame(
-                    dictionary,
-                    6,
-                    dictionary.generateAnswer(),
-                    log
-            );
+            WordleGame game = new WordleGame(dictionary.generateAnswer(), log, dictionary);
 
             System.out.println("Слово загадано!");
 
