@@ -7,9 +7,9 @@ public class WordleGame {
 
     private final String answer;
     private final PrintWriter log;
-    private int TRIES = 0;
+    static final int TRIES = 0;
     static final int WORD_LENGTH = 5;
-    private final int MAX_STEPS = 6;
+    static final int MAX_STEPS = 6;
 
     private Set<Character> absentLetters = new HashSet<>(); // буквы которых нет
     private Set<Character> presentLetters = new HashSet<>(WORD_LENGTH); // буквы которые есть
