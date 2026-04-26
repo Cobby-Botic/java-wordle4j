@@ -7,14 +7,14 @@ public class WordleGame {
 
     private final String answer;
     private final PrintWriter log;
-    private int tries = 0;
-    private final int wordLength = 5;
-    private final int maxSteps = 6;
+    private int TRIES = 0;
+    static final int WORD_LENGTH = 5;
+    private final int MAX_STEPS = 6;
 
     private Set<Character> absentLetters = new HashSet<>(); // буквы которых нет
-    private Set<Character> presentLetters = new HashSet<>(wordLength); // буквы которые есть
+    private Set<Character> presentLetters = new HashSet<>(WORD_LENGTH); // буквы которые есть
     private List<Character> correctPositions = new ArrayList<>(
-            Collections.nCopies(wordLength, null)); // правильные позиции
+            Collections.nCopies(WORD_LENGTH, null)); // правильные позиции
     private final Set<String> usedHints = new HashSet<>(); // для хранения использованных подсказок
 
     private final WordleDictionary dictionary;
@@ -36,14 +36,13 @@ public class WordleGame {
             }
 
             String result = checkAnswer(hint);
-            tries++;
             return "Подсказка: " + hint + "\n" + result;
         }
         String rightGuess = guess.trim().toLowerCase(Locale.ROOT).replace("ё", "е"); //подгоняю ввод
         // под правила
         validateGuess(rightGuess);
         String result = checkAnswer(rightGuess);
-        tries++;
+        TRIES++;
         log.println("Попытка: " + guess + " → " + result);
         return result;
     }
@@ -72,10 +71,10 @@ public class WordleGame {
 
     public String check(String guess, String target) {
         char[] targetChar = target.toCharArray();
-        boolean[] used = new boolean[wordLength];
-        StringBuilder str = new StringBuilder("-".repeat(wordLength));
+        boolean[] used = new boolean[WORD_LENGTH];
+        StringBuilder str = new StringBuilder("-".repeat(WORD_LENGTH));
 
-        for (int i = 0; i < wordLength; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             if (guess.charAt(i) == targetChar[i]) {
                 str.setCharAt(i, '+');
                 presentLetters.add(guess.charAt(i));
@@ -84,13 +83,13 @@ public class WordleGame {
             }
         }
 
-        for (int i = 0; i < wordLength; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             boolean found = false;
             if (str.charAt(i) == '+') {
                 continue;
             }
 
-            for (int j = 0; j < wordLength; j++) {
+            for (int j = 0; j < WORD_LENGTH; j++) {
                 if (target.charAt(j) == guess.charAt(i) && !used[j]) {
                     str.setCharAt(i, '^');
                     presentLetters.add(guess.charAt(i));
@@ -102,7 +101,7 @@ public class WordleGame {
             if (!found) {
                 char g = guess.charAt(i);
 
-                if (!presentLetters.contains(g)) {
+                if (target.indexOf(g) == -1) {
                     absentLetters.add(g);
                 }
             }
@@ -112,14 +111,14 @@ public class WordleGame {
 
     public String gameHint() {
 
-        if (usedHints.isEmpty()) {
-            return dictionary.generateAnswer();
-        }
-
         List<String> candidates = new ArrayList<>();
 
         for (String word : dictionary.getWords()) {
             boolean isValid = true;
+
+            if (word.equals(answer)) {
+                continue;
+            }
 
             if (usedHints.contains(word)) {
                 isValid = false;
@@ -134,7 +133,7 @@ public class WordleGame {
             }
             if (!isValid) continue;
 
-            for (int i = 0; i < wordLength; i++) {
+            for (int i = 0; i < WORD_LENGTH; i++) {
                 Character correct = correctPositions.get(i);
                 if (correct != null && word.charAt(i) != correct) {
                     isValid = false;
@@ -172,7 +171,7 @@ public class WordleGame {
     }
 
     public boolean isGameEnd() {
-        if (tries >= maxSteps) {
+        if (TRIES >= MAX_STEPS) {
             log.println("Попытки закончились");
             return true;
         } else return usedHints.contains(answer);
