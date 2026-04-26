@@ -7,7 +7,7 @@ public class WordleGame {
 
     private final String answer;
     private final PrintWriter log;
-    static final int TRIES = 0;
+    private int tries = 0;
     static final int WORD_LENGTH = 5;
     static final int MAX_STEPS = 6;
 
@@ -42,7 +42,7 @@ public class WordleGame {
         // под правила
         validateGuess(rightGuess);
         String result = checkAnswer(rightGuess);
-        TRIES++;
+        tries++;
         log.println("Попытка: " + guess + " → " + result);
         return result;
     }
@@ -171,7 +171,7 @@ public class WordleGame {
     }
 
     public boolean isGameEnd() {
-        if (TRIES >= MAX_STEPS) {
+        if (tries >= MAX_STEPS) {
             log.println("Попытки закончились");
             return true;
         } else return usedHints.contains(answer);
