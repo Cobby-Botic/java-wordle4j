@@ -45,13 +45,6 @@ public class Wordle {
             if (log != null) {
                 e.printStackTrace(log);
             }
-        } catch (DictionaryLoadException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace(log);
-        } catch (DictionaryIsEmptyException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace(log);
-
         } catch (Exception e) {
             e.printStackTrace();
             e.printStackTrace(log);;
