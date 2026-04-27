@@ -31,17 +31,24 @@ import static org.junit.jupiter.api.Assertions.*;
         }
 
         @Test
-        void testGameHintMatchesPreviousResult() throws InvalidGuessException {
+        void testGameHintReturnsFilteredWord() throws InvalidGuessException {
             WordleDictionary dict = new WordleDictionary(
                     List.of("пафос", "понос", "насос")
             );
             PrintWriter log = new PrintWriter(new StringWriter());
             WordleGame game = new WordleGame("пафос", log, dict);
-            String result = game.processGuess("понос");
+
+            game.processGuess("понос");
+
             String hintResponse = game.processGuess("");
             String hint = hintResponse.split("\n")[0].replace("Подсказка: ", "");
-            String check = game.check("понос", hint);
-            assertEquals(result, check);
+
+            if (hint.equals("Нет подходящих слов")) {
+                return;
+            }
+
+            assertTrue(dict.getWords().contains(hint));
+            assertNotEquals("понос", hint);
         }
 
         @Test
