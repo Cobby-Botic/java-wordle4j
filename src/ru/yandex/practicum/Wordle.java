@@ -1,18 +1,53 @@
 package ru.yandex.practicum;
 
-/*
-в главном классе нам нужно:
-    создать лог-файл (он должен передаваться во все классы)
-    создать загрузчик словарей WordleDictionaryLoader
-    загрузить словарь WordleDictionary с помощью класса WordleDictionaryLoader
-    затем создать игру WordleGame и передать ей словарь
-    вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
-    вывести состояние игры и конечный результат
- */
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
 public class Wordle {
 
     public static void main(String[] args) {
+        PrintWriter log = null;
+        try {
+            log = new PrintWriter(new FileWriter("Log.txt", StandardCharsets.UTF_8), true);
+            Scanner scanner = new Scanner(System.in);
 
+            WordleDictionaryLoader loader = new WordleDictionaryLoader(log);
+            WordleDictionary dictionary = loader.loadWordDict();
+
+            WordleGame game = new WordleGame(dictionary.generateAnswer(), log, dictionary);
+
+            System.out.println("Слово загадано!");
+
+            while (!game.isGameEnd()) {
+                System.out.println("\nВведите слово (Enter — подсказка):");
+
+                String input = scanner.nextLine();
+
+                try {
+                    String response = game.processGuess(input);
+                    System.out.println(response);
+                } catch (InvalidGuessException e) {
+                    System.out.println("Ошибка: " + e.getMessage());
+                }
+            }
+
+            if (game.isWin()) {
+                System.out.println("Вы угадали слово!");
+            } else {
+                System.out.println("Вы проиграли. Слово было: " + game.getAnswer());
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Ошибка создания лог-файла");
+            if (log != null) {
+                e.printStackTrace(log);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            e.printStackTrace(log);;
+        }
     }
-
 }
